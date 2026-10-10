@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f5f1">
+  <title>Social Media Usage | Analysis</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f4f5f1;
+      --surface: #fff;
+      --ink: #202a2a;
+      --muted: #667371;
+      --line: #dce2dd;
+      --teal: #287a78;
+      --coral: #b34e42;
+      --gold: #d98a45;
+      --blue: #6573a6;
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: "Segoe UI", Tahoma, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.5;
+    }
+    header {
+      padding: 30px max(24px, calc((100vw - 1180px) / 2));
+      background: var(--ink);
+      color: #f7f7f2;
+      border-bottom: 5px solid var(--teal);
+    }
+    .eyebrow {
+      margin: 0 0 8px;
+      color: #a9cfbf;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      margin-bottom: 8px;
+      font-family: var(--serif);
+      font-size: clamp(30px, 5vw, 46px);
+      font-weight: 500;
+      line-height: 1.08;
+    }
+    header p:last-child { margin-bottom: 0; color: #d2dbd6; }
+    main { max-width: 1180px; margin: 0 auto; padding: 28px 24px 56px; }
+    .section-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 30px 0 14px;
+    }
+    .section-heading h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: 25px;
+      font-weight: 500;
+    }
+    .section-heading p { margin: 0; color: var(--muted); font-size: 13px; }
+    .data-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px 24px;
+      padding: 15px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .data-controls strong { display: block; }
+    .data-controls p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+    .upload-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    input[type="file"] { max-width: 100%; font: inherit; font-size: 13px; }
+    button {
+      min-height: 38px;
+      padding: 7px 12px;
+      border: 1px solid var(--teal);
+      border-radius: 4px;
+      background: var(--teal);
+      color: white;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+    button:hover { background: #1f6462; }
+    button:focus-visible, input:focus-visible { outline: 3px solid #e7a95f; outline-offset: 2px; }
+    #upload-status { grid-column: 1 / -1; min-height: 18px; }
+    .insights {
+      display: grid;
+      grid-template-columns: 170px repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .insights h3 { margin: 0; font-family: var(--serif); font-size: 20px; font-weight: 500; }
+    .insight { padding-left: 16px; border-left: 3px solid var(--gold); }
+    .insight:nth-child(3) { border-color: var(--coral); }
+    .insight-label { display: block; color: var(--muted); font-size: 12px; }
+    .insight strong { display: block; margin-top: 3px; font-size: 15px; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .metric { padding: 18px 20px 19px 0; }
+    .metric + .metric { padding-left: 20px; border-left: 1px solid var(--line); }
+    .metric-label { display: block; color: var(--muted); font-size: 13px; }
+    .metric-value { display: block; margin-top: 5px; font-size: 28px; font-weight: 650; font-variant-numeric: tabular-nums; }
+    .metric:nth-child(2) .metric-value { color: var(--teal); }
+    .metric:nth-child(3) .metric-value { color: var(--coral); }
+    .metric:nth-child(4) .metric-value { color: var(--blue); }
+    .charts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    figure {
+      min-width: 0;
+      margin: 0;
+      padding: 16px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+    }
+    figcaption { margin-bottom: 12px; font-weight: 650; }
+    figure a { display: block; }
+    figure img { display: block; width: 100%; height: auto; }
+    .pie-layout { display: grid; grid-template-columns: minmax(130px, 0.8fr) minmax(0, 1fr); align-items: center; gap: 18px; min-height: 190px; }
+    .pie {
+      width: min(100%, 190px);
+      aspect-ratio: 1;
+      margin: auto;
+      border-radius: 50%;
+      background: conic-gradient(#dce2dd 0deg 360deg);
+    }
+    .legend { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .legend li { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: 12px; }
+    .legend-swatch { width: 10px; height: 10px; border-radius: 2px; }
+    .legend-value { color: var(--muted); font-variant-numeric: tabular-nums; }
+    .bar-chart { display: grid; gap: 12px; padding: 8px 0; }
+    .bar-row { display: grid; grid-template-columns: minmax(70px, 1fr) minmax(80px, 2fr) 48px; align-items: center; gap: 10px; font-size: 12px; }
+    .bar-track { height: 12px; overflow: hidden; background: #e9efeb; border-radius: 2px; }
+    .bar-fill { height: 100%; background: var(--teal); }
+    .bar-value { text-align: right; font-variant-numeric: tabular-nums; }
+    .empty-chart { align-self: center; color: var(--muted); font-size: 13px; }
+    .tables {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+    .table-section { min-width: 0; }
+    .table-section h3 { margin: 0 0 9px; font-size: 16px; }
+    .table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 5px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th, td { padding: 9px 11px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    th { background: #e9efeb; color: #344340; font-weight: 650; }
+    tbody tr:last-child td { border-bottom: 0; }
+    td:not(:first-child) { font-variant-numeric: tabular-nums; }
+    .footnote { margin: 28px 0 0; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    .error { color: #9e3328; }
+    @media (max-width: 720px) {
+      header { padding: 25px 20px; }
+      main { padding: 20px 16px 40px; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metric { padding: 14px 12px 14px 0; }
+      .metric + .metric { padding-left: 12px; }
+      .metric:nth-child(3) { padding-left: 0; border-left: 0; border-top: 1px solid var(--line); }
+      .metric:nth-child(4) { border-top: 1px solid var(--line); }
+      .charts, .tables { grid-template-columns: 1fr; }
+      .data-controls { grid-template-columns: 1fr; }
+      .insights { grid-template-columns: 1fr; gap: 12px; }
+      .insight { padding: 0 0 0 12px; }
+      .pie-layout { grid-template-columns: minmax(115px, 0.8fr) minmax(0, 1fr); gap: 12px; }
+      .section-heading { align-items: flex-start; flex-direction: column; gap: 3px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">Research snapshot · Respondent survey</p>
+    <h1>Social media usage</h1>
+    <p>Descriptive overview of daily activity, platforms, age groups, and reported emotions.</p>
+  </header>
+  <main>
+    <section class="data-controls" aria-label="Dataset controls">
+      <div>
+        <strong>Analyze a CSV file</strong>
+        <p>Upload respondent data with the same columns used by this project. Processing stays in your browser.</p>
+      </div>
+      <div class="upload-actions">
+        <input id="csv-file" type="file" accept=".csv,text/csv" aria-label="Choose a respondent CSV file">
+        <button id="reset-data" type="button">Use sample data</button>
+      </div>
+      <p id="upload-status" role="status">Loading sample dataset…</p>
+    </section>
+
+    <section aria-labelledby="overview-title">
+      <div class="section-heading">
+        <h2 id="overview-title">At a glance</h2>
+        <p>Calculated from the selected dataset</p>
+      </div>
+      <div class="insights" aria-label="Descriptive highlights">
+        <h3>Useful signals</h3>
+        <div class="insight"><span class="insight-label">Most selected platform</span><strong id="top-platform">Loading…</strong></div>
+        <div class="insight"><span class="insight-label">Highest average use</span><strong id="highest-usage">Loading…</strong></div>
+      </div>
+      <div class="metrics" id="metrics" aria-live="polite">
+        <div class="metric"><span class="metric-label">Respondents</span><span class="metric-value">…</span></div>
+        <div class="metric"><span class="metric-label">Mean daily use</span><span class="metric-value">…</span></div>
+        <div class="metric"><span class="metric-label">Median daily use</span><span class="metric-value">…</span></div>
+        <div class="metric"><span class="metric-label">Mean posts per day</span><span class="metric-value">…</span></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="charts-title">
+      <div class="section-heading">
+        <h2 id="charts-title">Patterns in the data</h2>
+        <p>Respondent mix and average usage, recalculated for this dataset</p>
+      </div>
+      <div class="charts">
+        <figure><figcaption>Respondents by platform</figcaption><div class="pie-layout" id="platform-chart"></div></figure>
+        <figure><figcaption>Reported emotions</figcaption><div class="pie-layout" id="emotion-chart"></div></figure>
+        <figure><figcaption>Average daily use by platform</figcaption><div id="usage-chart"></div></figure>
+        <figure><figcaption>Respondents by age group</figcaption><div class="pie-layout" id="age-chart"></div></figure>
+      </div>
+    </section>
+
+    <section aria-labelledby="tables-title">
+      <div class="section-heading">
+        <h2 id="tables-title">Summary tables</h2>
+        <p>Group averages and respondent counts</p>
+      </div>
+      <div class="tables">
+        <section class="table-section"><h3>Platform</h3><div class="table-wrap" id="platform-table"></div></section>
+        <section class="table-section"><h3>Gender</h3><div class="table-wrap" id="gender-table"></div></section>
+        <section class="table-section"><h3>Age group</h3><div class="table-wrap" id="age-table"></div></section>
+        <section class="table-section"><h3>Dominant emotion</h3><div class="table-wrap" id="emotion-table"></div></section>
+        <section class="table-section"><h3>Correlations</h3><div class="table-wrap" id="correlation-table"></div></section>
+      </div>
+    </section>
+    <p class="footnote">The included dataset is synthetic example data. Uploaded files are processed in this browser and are not sent to a server. Results are descriptive, depend on the submitted sample, and do not establish cause and effect.</p>
+  </main>
+  <script>
+    const numericColumns = ["age", "daily_usage_hours", "posts_per_day", "likes_received_per_day"];
+    const chartColors = ["#287a78", "#d98a45", "#b34e42", "#6573a6", "#6c9870", "#d4b24c", "#71818c", "#bd7890"];
+    const ageGroups = ["13-17", "18-24", "25-34", "35-44", "45-54", "55+"];
+
+    function parseCsv(text) {
+      const rows = [];
+      let row = [];
+      let field = "";
+      let quoted = false;
+      for (let index = 0; index < text.length; index += 1) {
+        const character = text[index];
+        if (quoted && character === '"' && text[index + 1] === '"') {
+          field += '"';
+          index += 1;
+        } else if (character === '"') {
+          quoted = !quoted;
+        } else if (character === "," && !quoted) {
+          row.push(field);
+          field = "";
+        } else if ((character === "\n" || character === "\r") && !quoted) {
+          if (character === "\r" && text[index + 1] === "\n") index += 1;
+          row.push(field);
+          if (row.some(value => value !== "")) rows.push(row);
+          row = [];
+          field = "";
+        } else {
+          field += character;
+        }
+      }
+      if (field !== "" || row.length) {
+        row.push(field);
+        if (row.some(value => value !== "")) rows.push(row);
+      }
+      return rows;
+    }
+
+    function average(values) {
+      const valid = values.filter(Number.isFinite);
+      return valid.length ? valid.reduce((total, value) => total + value, 0) / valid.length : null;
+    }
+
+    function median(values) {
+      const valid = values.filter(Number.isFinite).sort((left, right) => left - right);
+      if (!valid.length) return null;
+      const middle = Math.floor(valid.length / 2);
+      return valid.length % 2 ? valid[middle] : (valid[middle - 1] + valid[middle]) / 2;
+    }
+
+    function ageGroup(age) {
+      if (!Number.isFinite(age)) return "";
+      if (age <= 17) return ageGroups[0];
+      if (age <= 24) return ageGroups[1];
+      if (age <= 34) return ageGroups[2];
+      if (age <= 44) return ageGroups[3];
+      if (age <= 54) return ageGroups[4];
+      return ageGroups[5];
+    }
+
+    function analyzeCsv(text) {
+      const rows = parseCsv(text);
+      if (rows.length < 2) throw new Error("The CSV needs a header and at least one respondent row");
+      const headers = rows[0].map(value => value.replace(/^\uFEFF/, "").trim().toLowerCase());
+      const required = ["user_id", "age", "gender", "platform", "daily_usage_hours", "posts_per_day", "likes_received_per_day", "dominant_emotion"];
+      const missing = required.filter(column => !headers.includes(column));
+      if (missing.length) throw new Error(`Missing required columns: ${missing.join(", ")}`);
+
+      const records = rows.slice(1).map((cells, rowIndex) => {
+        const record = Object.fromEntries(headers.map((header, index) => [header, (cells[index] || "").trim()]));
+        for (const column of numericColumns) {
+          const value = record[column];
+          record[column] = value === "" ? null : Number(value);
+          if (record[column] !== null && !Number.isFinite(record[column])) {
+            throw new Error(`Row ${rowIndex + 2}: '${column}' must contain a number`);
+          }
+        }
+        if (record.age !== null && record.age < 0) throw new Error(`Row ${rowIndex + 2}: age cannot be negative`);
+        if (record.daily_usage_hours !== null && (record.daily_usage_hours < 0 || record.daily_usage_hours > 24)) {
+          throw new Error(`Row ${rowIndex + 2}: daily_usage_hours must be between 0 and 24`);
+        }
+        for (const column of ["posts_per_day", "likes_received_per_day"]) {
+          if (record[column] !== null && record[column] < 0) throw new Error(`Row ${rowIndex + 2}: '${column}' cannot be negative`);
+        }
+        record.platform = record.platform || "";
+        record.gender = record.gender || "";
+        record.dominant_emotion = record.dominant_emotion || "";
+        record.age_group = ageGroup(record.age);
+        return record;
+      }).filter(record => record.platform);
+
+      if (!records.length) throw new Error("No rows have a valid platform value");
+      return {
+        records,
+        overall: {
+          respondents: records.length,
+          meanUsage: average(records.map(record => record.daily_usage_hours)),
+          medianUsage: median(records.map(record => record.daily_usage_hours)),
+          meanPosts: average(records.map(record => record.posts_per_day))
+        },
+        platform: summarizeGroups(records, "platform"),
+        gender: summarizeGroups(records.filter(record => record.gender), "gender"),
+        age: summarizeGroups(records.filter(record => record.age_group), "age_group", ageGroups),
+        emotion: countGroups(records.filter(record => record.dominant_emotion), "dominant_emotion"),
+        correlations: correlationSummary(records)
+      };
+    }
+
+    function summarizeGroups(records, column, order = null) {
+      const groups = new Map();
+      records.forEach(record => {
+        if (!groups.has(record[column])) groups.set(record[column], []);
+        groups.get(record[column]).push(record);
+      });
+      const keys = order ? order.filter(key => groups.has(key)) : [...groups.keys()].sort((a, b) => a.localeCompare(b));
+      return keys.map(key => {
+        const group = groups.get(key);
+        return {
+          label: key,
+          respondents: group.length,
+          meanUsage: average(group.map(record => record.daily_usage_hours)),
+          meanPosts: average(group.map(record => record.posts_per_day)),
+          meanLikes: average(group.map(record => record.likes_received_per_day))
+        };
+      });
+    }
+
+    function countGroups(records, column) {
+      const counts = new Map();
+      records.forEach(record => counts.set(record[column], (counts.get(record[column]) || 0) + 1));
+      return [...counts].map(([label, respondents]) => ({ label, respondents }))
+        .sort((left, right) => right.respondents - left.respondents || left.label.localeCompare(right.label));
+    }
+
+    function correlation(left, right) {
+      const pairs = left.map((value, index) => [value, right[index]])
+        .filter(([a, b]) => Number.isFinite(a) && Number.isFinite(b));
+      if (pairs.length < 2) return null;
+      const meanLeft = average(pairs.map(pair => pair[0]));
+      const meanRight = average(pairs.map(pair => pair[1]));
+      const numerator = pairs.reduce((total, [a, b]) => total + (a - meanLeft) * (b - meanRight), 0);
+      const sumLeft = pairs.reduce((total, [a]) => total + (a - meanLeft) ** 2, 0);
+      const sumRight = pairs.reduce((total, [, b]) => total + (b - meanRight) ** 2, 0);
+      return sumLeft && sumRight ? numerator / Math.sqrt(sumLeft * sumRight) : null;
+    }
+
+    function correlationSummary(records) {
+      const measures = [
+        ["Daily use (hours)", "daily_usage_hours"],
+        ["Age", "age"],
+        ["Posts per day", "posts_per_day"],
+        ["Likes per day", "likes_received_per_day"]
+      ];
+      return measures.map(([label, column]) => ({
+        label,
+        values: measures.map(([, otherColumn]) => correlation(
+          records.map(record => record[column]),
+          records.map(record => record[otherColumn])
+        ))
+      }));
+    }
+
+    function formatNumber(value, digits = 2) {
+      return Number.isFinite(value) ? value.toLocaleString(undefined, { maximumFractionDigits: digits }) : "—";
+    }
+
+    function renderTable(targetId, headers, rows) {
+      const target = document.getElementById(targetId);
+      const table = document.createElement("table");
+      const head = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+      headers.forEach(label => {
+        const cell = document.createElement("th");
+        cell.scope = "col";
+        cell.textContent = label;
+        headerRow.append(cell);
+      });
+      head.append(headerRow);
+      const body = document.createElement("tbody");
+      rows.forEach(row => {
+        const tableRow = document.createElement("tr");
+        row.forEach(value => {
+          const cell = document.createElement("td");
+          cell.textContent = typeof value === "number" ? formatNumber(value) : value;
+          tableRow.append(cell);
+        });
+        body.append(tableRow);
+      });
+      table.append(head, body);
+      target.replaceChildren(table);
+    }
+
+    function renderPieChart(targetId, groups, total, description) {
+      const target = document.getElementById(targetId);
+      if (!groups.length) {
+        target.replaceChildren(Object.assign(document.createElement("p"), { className: "empty-chart", textContent: "No reported values in this column." }));
+        return;
+      }
+      const validGroups = groups.filter(group => group.respondents > 0);
+      let currentAngle = 0;
+      const slices = validGroups.map((group, index) => {
+        const nextAngle = currentAngle + group.respondents / total * 360;
+        const slice = `${chartColors[index % chartColors.length]} ${currentAngle}deg ${nextAngle}deg`;
+        currentAngle = nextAngle;
+        return slice;
+      });
+      const pie = document.createElement("div");
+      pie.className = "pie";
+      pie.setAttribute("role", "img");
+      pie.setAttribute("aria-label", description);
+      pie.style.background = `conic-gradient(${slices.join(", ")})`;
+      const legend = document.createElement("ul");
+      legend.className = "legend";
+      validGroups.forEach((group, index) => {
+        const item = document.createElement("li");
+        const swatch = document.createElement("span");
+        swatch.className = "legend-swatch";
+        swatch.style.background = chartColors[index % chartColors.length];
+        const name = document.createElement("span");
+        name.textContent = group.label;
+        const value = document.createElement("span");
+        value.className = "legend-value";
+        value.textContent = `${group.respondents} · ${formatNumber(group.respondents / total * 100, 1)}%`;
+        item.append(swatch, name, value);
+        legend.append(item);
+      });
+      target.replaceChildren(pie, legend);
+    }
+
+    function renderUsageChart(groups) {
+      const target = document.getElementById("usage-chart");
+      if (!groups.length) {
+        target.replaceChildren(Object.assign(document.createElement("p"), { className: "empty-chart", textContent: "No platform values available." }));
+        return;
+      }
+      const chart = document.createElement("div");
+      chart.className = "bar-chart";
+      const maxUsage = Math.max(...groups.map(group => group.meanUsage || 0));
+      groups.forEach((group, index) => {
+        const row = document.createElement("div");
+        row.className = "bar-row";
+        const label = document.createElement("span");
+        label.textContent = group.label;
+        const track = document.createElement("div");
+        track.className = "bar-track";
+        const fill = document.createElement("div");
+        fill.className = "bar-fill";
+        fill.style.background = chartColors[index % chartColors.length];
+        fill.style.width = `${maxUsage ? Math.max(0, group.meanUsage || 0) / maxUsage * 100 : 0}%`;
+        track.append(fill);
+        const value = document.createElement("span");
+        value.className = "bar-value";
+        value.textContent = `${formatNumber(group.meanUsage)} h`;
+        row.append(label, track, value);
+        chart.append(row);
+      });
+      target.replaceChildren(chart);
+    }
+
+    function renderMetrics(overall) {
+      const metrics = [
+        ["Respondents", overall.respondents, 0, ""],
+        ["Mean daily use", overall.meanUsage, 2, " h"],
+        ["Median daily use", overall.medianUsage, 2, " h"],
+        ["Mean posts per day", overall.meanPosts, 2, ""]
+      ];
+      document.getElementById("metrics").replaceChildren(...metrics.map(([label, value, digits, suffix]) => {
+        const metric = document.createElement("div");
+        metric.className = "metric";
+        const name = document.createElement("span");
+        name.className = "metric-label";
+        name.textContent = label;
+        const number = document.createElement("span");
+        number.className = "metric-value";
+        number.textContent = `${formatNumber(value, digits)}${suffix}`;
+        metric.append(name, number);
+        return metric;
+      }));
+    }
+
+    function renderInsights(data) {
+      const topPlatform = [...data.platform].sort((left, right) => right.respondents - left.respondents || left.label.localeCompare(right.label))[0];
+      const highestUsage = [...data.platform].filter(group => Number.isFinite(group.meanUsage))
+        .sort((left, right) => right.meanUsage - left.meanUsage || left.label.localeCompare(right.label))[0];
+      document.getElementById("top-platform").textContent = topPlatform
+        ? `${topPlatform.label} · ${topPlatform.respondents}/${data.overall.respondents} respondents (${formatNumber(topPlatform.respondents / data.overall.respondents * 100, 1)}%)`
+        : "Not enough platform data";
+      document.getElementById("highest-usage").textContent = highestUsage
+        ? `${highestUsage.label} · ${formatNumber(highestUsage.meanUsage)} hours per day on average`
+        : "Not enough usage data";
+    }
+
+    function updateDashboard(data, sourceLabel) {
+      renderMetrics(data.overall);
+      renderInsights(data);
+      renderPieChart("platform-chart", data.platform.map(group => ({ label: group.label, respondents: group.respondents })), data.overall.respondents, "Respondent share by platform");
+      renderPieChart("emotion-chart", data.emotion, data.overall.respondents, "Respondent share by reported emotion");
+      renderPieChart("age-chart", data.age.map(group => ({ label: group.label, respondents: group.respondents })), data.overall.respondents, "Respondent share by age group");
+      renderUsageChart(data.platform);
+      renderTable("platform-table", ["Platform", "Avg use (h)", "Posts/day", "Likes/day", "Respondents"], data.platform.map(group => [group.label, group.meanUsage, group.meanPosts, group.meanLikes, group.respondents]));
+      renderTable("gender-table", ["Gender", "Avg use (h)", "Respondents"], data.gender.map(group => [group.label, group.meanUsage, group.respondents]));
+      renderTable("age-table", ["Age group", "Avg use (h)", "Respondents"], data.age.map(group => [group.label, group.meanUsage, group.respondents]));
+      renderTable("emotion-table", ["Dominant emotion", "Respondents", "Share"], data.emotion.map(group => [group.label, group.respondents, `${formatNumber(group.respondents / data.overall.respondents * 100, 1)}%`]));
+      const correlationLabels = ["Daily use (h)", "Age", "Posts/day", "Likes/day"];
+      renderTable("correlation-table", ["Measure", ...correlationLabels], data.correlations.map(row => [row.label, ...row.values]));
+      document.getElementById("upload-status").textContent = `${sourceLabel} · ${data.overall.respondents.toLocaleString()} respondents analyzed`;
+      document.getElementById("upload-status").classList.remove("error");
+    }
+
+    async function loadSample() {
+      const status = document.getElementById("upload-status");
+      status.textContent = "Loading sample dataset…";
+      status.classList.remove("error");
+      try {
+        const response = await fetch("social_media_usage.csv");
+        if (!response.ok) throw new Error("Could not load the bundled sample CSV");
+        updateDashboard(analyzeCsv(await response.text()), "Sample dataset");
+      } catch (error) {
+        status.textContent = error.message;
+        status.classList.add("error");
+      }
+    }
+
+    document.getElementById("csv-file").addEventListener("change", async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const status = document.getElementById("upload-status");
+      status.textContent = `Reading ${file.name}…`;
+      status.classList.remove("error");
+      try {
+        updateDashboard(analyzeCsv(await file.text()), file.name);
+      } catch (error) {
+        status.textContent = error.message;
+        status.classList.add("error");
+      }
+    });
+
+    document.getElementById("reset-data").addEventListener("click", () => {
+      document.getElementById("csv-file").value = "";
+      loadSample();
+    });
+
+    loadSample();
+  </script>
+</body>
+</html>
